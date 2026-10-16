@@ -1,0 +1,90 @@
+---
+title: "Report Lab 2 - Group A15"
+output:
+  pdf_document:
+    latex_engine: xelatex
+---
+
+# Statement of Contributions
+
+| LiU ID   | Contributions                                                      |
+|----------|--------------------------------------------------------------------|
+| albal273 | Code and report for assignment 2. Report for assignment 4, part 2. |
+| lingo978 | Code and report for assignment 3. Report for assignment 4, part 3. |
+| vikno856 | Code and report for assignment 1. Report for assignment 4, part 1. |
+
+```{r child="assignment1/assignment1.Rmd"} 
+```
+
+```{r child="assignment2/assignment2.Rmd"} 
+```
+
+```{r child="assignment3/assignment3.Rmd"} 
+```
+
+# Assignment 4
+
+## What are the practical approaches for reducing the expected new data error, according to the book?
+
+The book mentions several approaches to reducing the expected new data error.
+If possible, one should try to increase the amount of training data, as this
+typically leads to a smaller expected new data error and a smaller
+generalisation gap (the gap between the average training data error
+and the average expected new data error). Furthermore, the book mentions the
+relationship between the expected training error and the model complexity. A
+high model complexity usually decreases the training error, but also
+the generalisation gap. Conversely, a lower model complexity leads to a higher
+training error, but also a lower generalisation gap. A good middle
+ground to aim for is therefore a scenario where neither the generalisation
+gap nor the expected training error is zero. By evaluating the expected new
+data error and the training error via cross-validation, one can conclude that
+if the calculated expected new data error and the training error are similar,
+the model is possibly underfit and might benefit from an increased model
+complexity. Furthermore, if the training error is zero and the calculated
+expected new data error is not, the model is possibly overfit and might
+benefit from decreasing the complexity. [p. 76-77]
+
+## What important aspect should be considered when selecting minibatches, according to the book?
+
+It is very important to make sure that all different mini-batches are
+balanced and representative of the whole data set. If we have a big data
+set with a lot of different possible output classes and use mini-batches
+that are not balanced some of the mini-batches might not contain all of
+the output classes and are therefor not a good representation of the
+full data set. This will give bad approximations of the gradient for the
+full data set. [p. 125]
+
+
+## Provide an example of modifications in a loss function and in data that can be done to take into account the data imbalance, according to the book
+
+To account for imbalance, a loss function can be modified using class weighting.
+This modification signs a higher penalty weight to misclassifications of the
+minority class compared to the majority class. In the book they give the example
+of the loss for the minority class being multiplied by a factor C to make the
+model prioritize its correct prediction. Similarly for the modification of data,
+the book suggests duplicating the data points in the minority class by a 
+factor C. This duplication makes the model see the minority class C times more,
+giving it more importance in training. [p. 101-102]
+
+# Appendix
+
+## Assignment 1
+```{r, results='asis', echo=FALSE}
+cat("```r\n")
+cat(readLines("assignment1/R/script.R"), sep = "\n")
+cat("\n```")
+```
+
+## Assignment 2
+```{r, results='asis', echo=FALSE}
+cat("```r\n")
+cat(readLines("assignment2/R/script.R"), sep = "\n")
+cat("\n```")
+```
+
+## Assignment 3
+```{r, results='asis', echo=FALSE}
+cat("```r\n")
+cat(readLines("assignment3/R/script.R"), sep = "\n")
+cat("\n```")
+```

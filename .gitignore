@@ -1,0 +1,15 @@
+# R / RStudio
+.Rproj.user/
+.Rhistory
+.RData
+.Ruserdata
+
+# knitr / LaTeX intermediates
+*_cache/
+*_files/
+*.log
+*.aux
+*.tex
+
+# Windows download metadata
+*:Zone.Identifier

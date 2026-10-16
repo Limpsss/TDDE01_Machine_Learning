@@ -1,0 +1,125 @@
+---
+title: "Assignment 2"
+author: "Linus Göransson"
+date: "2025-11-20"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+```{r, include=FALSE}
+source("R/script.R")
+library(broom)
+library(dplyr)
+library(knitr)
+```
+
+# Assignment 2
+
+## Part 1.
+
+We split the data into training and test sets using a 60/40 ratio, as per the lecture slides. We then only kept the variables relevant for prediciton (the acoustic voice characteristics and the target variable) and excluded subject, age, sex, and test_time since they are not part of the modeling task. Then we scaled the data appropriately.
+
+## Part 2.
+We computed a linear regression model using R's $lm()$ function on the scaled training data. We then calculated the estimated training and test Mean-Squared-Error (MSE) using the formula shown below.
+$$
+\text{MSE} = \frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2
+$$
+Calculated values:
+
+$\text{MSE}_{\text{train}}$ = **`r mse_train`**
+
+$\text{MSE}_{\text{test}}$ = **`r mse_test`**
+
+From the model summary we can see which features are statistically significant. Features with a p-value < 0.05 are typically considered significant.
+
+Below is a table summarizing the estimated coefficients for each feature. The features are sorted by p-value in ascending order.
+```{r, echo=FALSE}
+coef_data <- tidy(model)
+
+# 1. Sort the data
+sorted_data <- coef_data %>%
+  arrange(p.value)
+
+# 2. Select columns and mutate the P value column
+final_table_data <- sorted_data %>% 
+  mutate(p.value = format.pval(p.value, digits = 4, eps = 1e-16)) %>% 
+  select(
+    Feature = term,
+    Estimate = estimate,
+    `Std. Error` = std.error,
+    `t value` = statistic,
+    `P value` = p.value
+  )
+
+knitr::kable(
+  final_table_data, 
+  caption = "Regression Coefficients"
+)
+```
+
+## Part 3.
+
+We implemented the functions using these formulas:
+
+### Loglikelihood:
+$$
+\text{log }p(T | \theta, \sigma) = -\frac{N}{2} \log(2 \pi \sigma^2) - \frac{1}{2 \sigma^2} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2
+$$
+
+
+### Ridge:
+$$
+\text{Ridge}(\theta,\sigma,\lambda) = -\text{log }p(T | \theta, \sigma) + \lambda \sum_{i=1}^{n} \theta_i^2
+$$
+
+
+### RidgeOpt:
+$$
+\hat{\theta} = \underset{\theta}{\arg \min} \left\{ \text{Ridge}(\theta,\sigma,\lambda) \right\}
+$$
+
+### DF:
+$$
+\text{df}(\lambda) = \text{trace}\left(X \left(X^T X + \lambda I \right)^{-1} X^T \right)
+$$
+
+## Part 4.
+
+For the last part, we compute the optimal $\theta$ paramaters for $\lambda \in \{1, 5, 100\}$.
+```{r, echo=FALSE}
+
+results_list <- list()
+for (lambda in c(1, 100, 1000)) {
+  ridge_model <- ridgeOpt(lambda, X_train, y_train)
+  theta_hat <- ridge_model$par[1:16]
+  y_hat_train <- X_train %*% theta_hat
+  y_hat_test <- X_test %*% theta_hat
+  
+  mse_train <- mse(y_train, y_hat_train)
+  mse_test <- mse(y_test, y_hat_test)
+  df <- DF(lambda, X_train)
+  
+  current_result <- tibble(
+    Lambda = lambda,
+    MSE_train = mse_train,
+    MSE_test = mse_test,
+    DF = df
+  )
+
+  results_list[[length(results_list) + 1]] <- current_result
+}
+
+final_metrics_df <- bind_rows(results_list)
+
+knitr::kable(
+  final_metrics_df,
+  caption = "Performance Across Lambda Values",
+  align = c("l", "l", "l", "l", "l"),
+  col.names = c("$\\lambda$", "$\\text{MSE}_{\\text{train}}$", "$\\text{MSE}_{\\text{test}}$", "DF")
+)
+```
+
+From Table 2 we can see the MSE scores and the degrees of freedom for each $\lambda$. The penalty paramater $\lambda$ which is most appropriate is $\lambda$ = 100. This penalty has the lowest test MSE (0.9323), and the training MSE is only slightly higher than $\lambda$ = 1, so we are not over-penalizing. Its degrees of freedom ($\approx$ 10) represent a model that is simpler than $\lambda$ = 1 but not as restrictive as $\lambda$ = 1000. The drop in DF at $\lambda$ = 1000 leads to underfitting and worse test performance, and $\lambda = 1$, which has $\approx 4$ more degrees of freedom, does not yield a better test MSE. This suggests that with $\lambda = 1$, the model is unnecessarily complex and more prone to overfitting.
+

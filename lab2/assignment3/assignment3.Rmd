@@ -1,0 +1,125 @@
+---
+title: "Assignment 3"
+author: "Linus Göransson"
+output:
+  pdf_document: default
+date: "2025-12-05"
+---
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+source("R/script.R")
+knitr::read_chunk("R/script.R")
+```
+
+```{r init}
+```
+
+# Assignment 3
+
+## Part 1
+
+
+After implementing PCA, we could see what proportion of the variance each 
+component explained. By summing the components in descending order of proportion
+size, the number of components needed to obtain 95% of the total variance was 35.
+
+The proportion of variation explained by each of the first two principal
+components were:
+
+$\text{PC1}$ = **`r PC_variance[1]`**%
+
+$\text{PC2}$ = **`r PC_variance[2]`**%
+
+
+## Part 2
+
+
+Many features have a notable contribution to this component, but the values are 
+scattered and cover the entire range from around -0.18 to 0.17 which suggests 
+that the component is not dominated by just one or two features.
+
+```{r traceplot}
+```
+
+
+Below is a table of the most contributing factors to PC1.
+
+```{r, echo=FALSE}
+knitr::kable(top_features, caption = "Top 5 Contributing Features to PC1")
+```
+
+We can clearly see the relationship between the most contributed features 
+relating to crime as the component captures the lack of economic resources and 
+social stability that links directly to elevated levels of violent crime.
+
+
+```{r PC-scores-plot}
+```
+
+Above is the plot of PC scores in the coordinates (PC1, PC2). 
+On the x axis, PC1, which is the primary dimension and accounts for the largest 
+amount of variance, there is a clear gradient of color from left to right. This 
+means the linear combination of features that define PC1 (including the top 5 
+features mentioned earlier) are good predictors for violent crime rate.
+
+The y axis, PC2, accounts for the second largest amount of variance. The spread
+is quite big, but the color does not change as clearly with vertical movement.
+For example, at PC1=0, you see a mix of colors across the vertical range. This
+means that PC2 captures variation in the data but this variation is not as
+strongly related to the violent crime rate as PC1.
+
+
+## Part 3
+
+
+We scaled the data with a 50/50 ratio and fitted a linear regression model.
+
+Calculated mean squared error (MSE):
+
+$\text{MSE}_{\text{train}}$ = **`r mse_train`**
+
+$\text{MSE}_{\text{test}}$ = **`r mse_test`**
+
+The training MSE is relatively low, but the test MSE is significantly higher
+(0.4248/0.2752 $\approx$ 1.54). The test error is about 54% higher than the
+training error. This is a case of overfitting as there is a significant gap 
+between the training and test MSE, indicating that the model has captured 
+random noice in the training data. The quality of the model is therefore 
+suboptimal because it is to complex for the amount of data provided, 
+leading to high variance and poor performance on unseen data.
+
+
+## Part 4
+
+
+We implemented MSE as the cost function that depends on theta as this is
+typically the cost function used in linear regression. Here, $y_i$ is the i:th
+actual y value and the expression $\mathbf{\theta}^T x_i$ is the i:th predicted
+value $\hat{y}_i$.
+
+$$
+\text{Cost function} = \frac{1}{n} \sum_{i=1}^{n} (y_i - \mathbf{\theta}^T x_i)^2
+$$
+
+
+Below is the plot showing dependence of both errors on the iteration number.
+```{r learning-curve-plot, fig.align='center'}
+```
+
+
+According to the early stopping criterion, iteration **`r min_test_index`**
+is optimal.
+In the optimal model, these are the computed training and test errors:
+
+$\text{Optimal-model-MSE}_{\text{train}}$ = **`r optimal_model_train_mse`**
+
+$\text{Optimal-model-MSE}_{\text{test}}$ = **`r optimal_model_test_mse`**
+
+The optimal model found using early stopping has a lower test MSE, but higher
+training MSE compared to the lm() model in part 3, even though the cost function
+used was the same. By stopping the optim() early at the lowest test MSE we
+avoided the phase where the model started to overfit, as can be seen in the
+graph above. Early stopping produced a more robust set of parameters $\theta$
+that generalize (a little bit) better to the test set.
+

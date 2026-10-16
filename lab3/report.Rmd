@@ -1,0 +1,61 @@
+---
+title: "Report Lab 3 - Group A15"
+output:
+  pdf_document:
+    latex_engine: xelatex
+---
+
+# Statement of Contributions
+
+| LiU ID   | Contributions                                                      |
+|----------|--------------------------------------------------------------------|
+| albal273 | Code and report for assignment 4. Report for assignment 1, part 3. |
+| lingo978 | Code and report for assignment 3. Report for assignment 1, part 2. |
+| vikno856 | Code and report for assignment 2. Report for assignment 1, part 1. |
+
+# Assignment 1
+
+## What is the kernel trick?
+
+The kernel trick is about working with non-linear transformations to higher
+dimensions when the data is not linearly separable in the input space.
+Transforming data in this way can be expensive. Therefore, if the data
+enters the model only as the transformed counterpart, the output scalar
+from multiplying to transformations together can be calculated directly.
+In this case, the expensive transformation can be avoided. The method that 
+allows for this behavior is called the kernel trick. It uses a so-called
+kernel function to calculate the result without lifting the input data to
+the higher dimension. There exists a set of kernels that follow the given
+criteria that can be chosen arbitrarily. [p. 194-195]
+
+```{r child="assignment2/assignment2.Rmd"}
+```
+
+```{r child="assignment3/assignment3.Rmd"}
+```
+
+```{r child="assignment4/assignment4.Rmd"}
+```
+
+# Appendix
+
+## Assignment 2
+```{r, results='asis', echo=FALSE}
+cat("```r\n")
+cat(readLines("assignment2/R/script.R"), sep = "\n")
+cat("\n```")
+```
+
+## Assignment 3
+```{r, results='asis', echo=FALSE}
+cat("```r\n")
+cat(readLines("assignment3/R/script.R"), sep = "\n")
+cat("\n```")
+```
+
+## Assignment 4
+```{r, results='asis', echo=FALSE}
+cat("```r\n")
+cat(readLines("assignment4/R/script.R"), sep = "\n")
+cat("\n```")
+```

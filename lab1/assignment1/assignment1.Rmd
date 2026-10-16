@@ -1,0 +1,116 @@
+---
+title: "Assignment 1"
+output: pdf_document
+date: "2025-11-18"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::read_chunk("R/script.R")
+```
+
+```{r setup-functions}
+```
+```{r read-and-partition-data}
+```
+
+# Assignment 1
+
+## Evaluating Prediction Quality
+The imported data is used to train two 30-nearest neighbor classifiers
+(from kknn) that are tested on the training data and the testing data
+respectively. The column *true* in the data represents the actual digit:
+
+```{r train-models, echo=TRUE}
+```
+
+```{r get-predictions}
+```
+
+After the classifiers are trained, the confusion matrices look as follows.
+Note that the X-axis represents predicted values and the Y-axis represents
+actual values:
+
+### Confusion Matrix for Training Data
+
+```{r show-confusion-matrix-1}
+```
+
+### Confusion Matrix for Testing Data
+
+```{r show-confusion-matrix-2}
+```
+
+### Comments
+As can be seen by inspecting the diagonal of the matrices, most predictions match
+their actual counterparts. However, there are some common misclassifications present within both classifiers. The classifiers sometimes predict **1** when the actual value is **8**. Likewise, both classifiers have a relatively hard time correctly classifying the digit **4**. To get further information regarding the overall quality of predictions, the misclassifitaion error could be taken into account.
+
+### Misclassification Errors
+The misclassification errors for the given classifiers are:
+
+```{r show-misclassifications, echo=TRUE}
+```
+
+As can be seen from these values, roughly 5% of the predictions made are incorrect.
+
+## Heatmap Visualisation
+
+The digit to be represented is **8**. Two cases where the classifier is confident and three cases where the classifier is uncertain are picked respectively, according to the laboration instructions.
+
+Confidence is defined by inspecting the values in the `prob` table for a certain classifier. The sum of a row is always 1, and the probability might or might not be spread out over many digits.
+
+```{r}
+print(model_train$prob[4, ])
+```
+
+The example above illustrates a row with a probability for digit **5** as roughly 87%, with the rest of the probability spread out between digit **3** and **9**. In other words, the classifier is 87% *confident* that the digit is a **5**.
+
+### Confident Prediction Heatmaps
+
+```{r print-heatmaps-1}
+```
+
+### Uncertain Prediction Heatmaps
+
+```{r print-heatmaps-2}
+```
+
+### Comments
+
+A visual feature present in the heatmaps confidently predicted by the classifier that is not clearly present in the heatmaps predicted with uncertainty is the loops. An **8** without loops can easily be misinterpreted as a **1**, even by a human, as it is what makes an **8** distinguishable compared to the other digits. If a loop is missing, it makes sense that the classifier can mistake the **8** for another digit.
+
+## Misclassification Erros for Classifiers with k = 1..30
+
+The following plot illustrates the misclassification errors for nearest neighbor classifiers with different k-values:
+
+```{r print-plot-1}
+```
+
+As can be seen from the plot, the lowest misclassification error from the
+validation data is given by k = 3 and k = 4. Because of this, these two values are the main candidates when deciding the k-value. Moreover, these two candidates have a misclassification error from the training data that is >0, which implies that the classifier is not overfitting (as it is for k = 1 and k = 2). The decision of the optimal k-value ultimatily landed in k = 4 based on the smaller gap between the misclassification error between the training data and the validation data. This decision should result in a slightly more generalized model.
+
+### Misclassification errors for Optimal k-value
+
+Given the optimal k-value of k = 4, the different misclassification errors look like the following:
+
+```{r optimal-k-printouts, echo = TRUE}
+```
+
+As seen from this print-out, the misclassification error for the validation data and the testing data is roughly equal. The model is hence well-balanced, since it has equal performance on unseen data even after the validation data has been used to choose the optimal k-value.
+
+## Cross-Entropy for Classifiers with k = 1..30
+
+The Cross-Entropy for all k-values in the range k = 1..30 is calculated using the prediction confidence for the true value for each row in the validation data as the input.
+
+This results in the following plot:
+
+```{r print-plot-2}
+```
+
+Based on this plot, a k-value of k = 6 is the most optimal.
+
+### Why Might Cross-Entropy be More Suitable than Misclassification?
+
+When computing misclassification error, each input corresponds to a binary output. Either the prediction is correct, or it is wrong. Cross-Entropy on the other hand takes the confidence of the model into account (using the probability table), leading to a continuous output for each input. Because of this, a correct guess with a high confidence gives a higher reward than a correct guess with a low confidence. Conversely, a wrong guess with a high confidence if penalized more than a wrong guess with low confidence.
+
+Because of the ability to get a more granular reading on if a certain prediction is considered good or not, cross-entropy might be more suitable that misclassification.

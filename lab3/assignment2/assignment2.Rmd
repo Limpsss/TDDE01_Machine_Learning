@@ -1,0 +1,226 @@
+---
+title: "assignment1"
+output: pdf_document
+date: "`r Sys.Date()`"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::read_chunk("R/script.R")
+```
+
+```{r setup-functions}
+```
+
+# Assignment 2
+
+## Setup
+
+The data is imported through the snippet given in the assignment instructions.
+The date to predict is 2000-10-04 and the point where the forecast is taking
+place is a point along the south-eastern coast of Sweden.
+
+```{r setup-predictions}
+```
+
+To ensure that no posterior data to the date of the forecast is contained
+within the dataset, it is filtered out.
+
+```{r filter-data}
+```
+
+## Gaussian Distance Function
+
+The Gaussian kernel is for each distance is calculated using the function
+`gaussian_kernel`. This is a custom-made function that takes in a vector
+of comparison values and a $\sigma$ value and returns a vector of kernel values
+(values between 0:1). It uses the following function:
+
+$$
+k(d) = exp(-\frac{||d||^2}{2\sigma^2})
+$$
+
+Where *d* represents a comparison and *$\sigma$* represents the hyperparameter
+discussed further in [Additional Notes](#additional-notes).
+
+## Calculating Physical Distance
+
+As per the instructions, the `distHaversine` function is used to calculate
+the physical distance between the given points in the data and to the point
+of prediction. The function `gaussian_kernel` is used to calculate the distance
+between the points. In this instance, a $\sigma$ value of the first quartile
+of the physical distances is used.
+
+```{r calculate-physical-distance}
+```
+
+## Calculating Distance Between Days
+
+The function `gaussian_kernel` is used to calculate the distance between
+days. As for the physical distance, a $\sigma$ value of the first quartile
+of the data is used. To calculate the circular distance between the given
+days and the day to predict, the custom-made function `calculate_day_diff` is
+used, which takes a vector of dates and a comparison date and returns a 
+vector of the difference in days between these.
+
+```{r calculate-day-distance}
+```
+
+## Calculating Distance Between Hours
+
+The custom-made function `calculate_hour_diff` is used to calculate the
+circular distance in time between the times in the data and the given times
+(every second hour between 04:00 - 24:00). It takes a vector of times and
+a given comparison time and returns a vector of the difference in time
+between these.
+Since the forecast is supposed to predict every second hour in the interval
+04:00 - 24:00, this means that there are eleven times to predict for the
+prediction day. Therefore, a matrix is constructed with eleven columns
+where the rows correspond to a certain points, and every column represent
+an hour between 04:00 - 24:00 with a two-hour interval. As with the other
+distances, the function `gaussian_kernel` is used to calculate the distance
+between the times, and a $\sigma$ value of the first quartile of the data is
+used.
+
+## Extension of Kernels
+
+Since the representation of the hour distance is a matrix with eleven columns,
+and the representation of the day distance and phyiscal distance are vectors,
+they can not be added or multiplied together. To combat this issue, the vectors
+are extended to matrices by copying the vector to a matrix with eleven
+columns.
+
+## Additive Sum of Kernels
+
+The three kernels are added together into one kernel. Given:
+$$
+w_i(x)
+=
+K_{\text{dist}}\big( d(x, x_i) \big)
++
+K_{\text{day}}\big( \Delta_{\text{day}}(x, i) \big)
++
+K_{\text{hour}}\big( \Delta_{\text{hour}}(x, i) \big)
+$$
+The following formula is used to generate a prediction *$\hat{T}(x)$* for each
+column in the kernel matrix:
+
+
+$$
+\hat{T}(x)
+=
+\frac{
+\sum_{i=1}^n w_i(x)\, T_i
+}{
+\sum_{i=1}^n w_i(x)
+}
+$$
+
+Where *x* is the searched point, and *$T_i$* is the prediction.
+
+
+### Results
+
+The following table represent the results from the additive sum of the kernels:
+
+| Hour of Day | Predicted Temperature |
+|-------------|-----------------------|
+| 04:00       | 5.571827              |
+| 06:00       | 5.673191              |
+| 08:00       | 6.081358              |
+| 10:00       | 6.448931              |
+| 12:00       | 6.482853              |
+| 14:00       | 6.639942              |
+| 16:00       | 6.459819              |
+| 18:00       | 6.176586              |
+| 20:00       | 6.012951              |
+| 22:00       | 5.719615              |
+| 24:00       | 5.564029              |
+
+## Multiplicative Sum of Kernels
+
+The three kernels are multiplied together into one kernel. Given:
+$$
+w_i(x)
+=
+K_{\text{dist}}\big( d(x, x_i) \big)
+\cdot
+K_{\text{day}}\big( \Delta_{\text{day}}(x, i) \big)
+\cdot
+K_{\text{hour}}\big( \Delta_{\text{hour}}(x, i) \big)
+$$
+The following formula is used to generate a prediction *$\hat{T}(x)$* for each
+column in the kernel matrix:
+
+
+$$
+\hat{T}(x)
+=
+\frac{
+\sum_{i=1}^n w_i(x)\, T_i
+}{
+\sum_{i=1}^n w_i(x)
+}
+$$
+
+Where *x* is the searched point, and *$T_i$* is the prediction.
+
+### Results
+
+The following table represent the results from the multiplicative sum of the
+kernels:
+
+| Hour of Day | Predicted Temperature |
+|-------------|-----------------------|
+| 04:00       | 7.474001              |
+| 06:00       | 7.972955              |
+| 08:00       | 8.624780              |
+| 10:00       | 9.981119              |
+| 12:00       | 10.189316             |
+| 14:00       | 10.487613             |
+| 16:00       | 9.701520              |
+| 18:00       | 9.067207              |
+| 20:00       | 8.459806              |
+| 22:00       | 8.038242              |
+| 24:00       | 7.653608              |
+
+## Discussion
+
+As evident from the results, the multiplicative kernel works better than the
+additive sum. The general pattern of colder temperatures during the night and
+higher temperatures during the day is present in the
+additive sum, but the variation in
+temperature does not reflect the real life. This is because when using additive
+summation, it is enough that only one of the three kernels has a high value
+for the resulting kernel to be high, and consequently, take the point in
+question into account when making the forecast. For the multiplicative
+summation, however, it is enough that one of the kernels gets a low value to
+produce a resulting kernel with a low value. To put this reasoning in other
+words, the additive kernel runs the risk of taking points where one or two
+of the distances are far from the target. The multiplicative kernel, however,
+only takes points where all three distances are close into account, producing
+a more relevant result.
+
+## Plot
+
+As per the assignment instructions, the following plot shows the kernel value
+as a function of the physical distance:
+
+```{r show-plot, echo=FALSE}
+```
+
+The plot shows that points that are closer to the target get a higher
+kernel value. The $\sigma$ value of the first quartile gives a distance of
+approx. 233km, which is reflected in the plot (at approx. 0.61). The further
+away a given point is from the target, the less the resulting kernel value
+becomes. At around 800km and beyond, the kernel value is close to zero, meaning
+that those point have no impact on the end result.
+
+## Additional Notes
+
+The hyperparameter $\sigma$ is chosen to be the first quartile for all
+three distances. This is an arbitrary choice, as the assignment instructions
+explicitly state that no cross-validation should be used. At first, the median
+was chosen as the $\sigma$ value. However, this did not produce the intended
+result, since too many points were captured in the resulting kernel. Therefore,
+the first quartile was chosen instead, as it is a bit more restrictive.

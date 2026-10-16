@@ -1,0 +1,197 @@
+---
+title: "assignment1"
+output:
+  pdf_document:
+    latex_engine: xelatex
+date: "2025-12-02"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::read_chunk("R/script.R")
+```
+
+```{r setup-functions}
+```
+```{r read-and-partition-data}
+```
+
+# Assignment 1
+
+## Data (Part 1)
+
+The data is imported and partitioned 50/50 between the training/testing data
+using the procedure in the slides.
+Relevant data for the task is extracted (Sample 1..100, Fat) for both
+training and testing data:
+
+```{r extract-data, echo=TRUE}
+```
+
+## Modeling Linear Regression (Part 1)
+
+The imported data is used to train a linear regression model that predicts
+Fat based on Sample 1..100:
+
+```{r fit-lm, echo=TRUE}
+```
+
+```{r calculate-mse}
+```
+
+To get an indication on the quality of the model, the MSE is calculated:
+
+```{r print-mse, echo=TRUE}
+```
+
+### Comments (Part 1)
+The MSE for the test data is much higher than the MSE for the training data.
+The model is extremely overfit, hence it makes bad predictions for unseen data.
+There are too many features compared to the number of
+samples (108 samples for training with 100 features).
+
+### Underlying Probabilistic Model (Part 1)
+
+The underlying probabilistic model for the linear regression
+for the entry i is as follow:
+
+$$
+y_i = \theta_0 + \theta_1 x_{i1} + \cdots + \theta_{100} x_{i100} + \varepsilon_i
+$$
+Where $\varepsilon$ corresponds to the error term.
+
+## Modelling LASSO (Part 2)
+
+```{r training-function, message=FALSE}
+```
+
+A LASSO model is trained using a custom training function. It returns a glmnet
+model and takes the training data and alpha (0 for Ridge, 1 for LASSO) as
+arguments.
+
+```{r training-lasso, echo=TRUE}
+```
+
+### Cost Function (Part 2)
+
+The cost function that should be optimized for this scenario is as follows:
+
+$$
+\frac{1}{n} \sum_{i=1}^n
+(y_i - \theta_0 - \theta_1x_{1i} - \cdots - \theta_px_{pi})^2
++ \lambda \sum_{j=1}^p|\theta_j|
+$$
+
+Where *n* is the number of entries and *p* is the number of parameters and
+*$\lambda$* represents the penalty factor.
+
+### Plot (Part 3)
+
+The following plot illustrates how the regression coefficients depend on the
+log of the penalty factor.
+
+```{r plot-lasso}
+```
+
+As can be seen from the plot, all coefficients have a value when the penalty
+factor is close to zero. This closely reassembles a regular linear
+regression model. As the penalty factor grows, the amount relevant features
+shrink at different paces. When the penalty factor is high enough, all features
+are zero.
+
+### Deciding on a Model with Three Features (Part 3)
+
+As can be seen from the previous plot, when the log of the penalty factor
+is between -1 and 0, most of the features are zero. More precisely, two of the
+final three features shrink to zero when the log of the penalty factor is
+just below zero. This means that to get a model with exactly three features
+in this case requires the log of the penalty factor to be just below zero
+(and large enough to not incorporate four features).
+
+## Modelling Ridge (Part 4)
+
+The same training procedure applied on LASSO is repeated for Ridge.
+
+```{r training-ridge, echo=TRUE}
+```
+
+### Plot (Part 4)
+
+The following plot illustrates how the regression coefficients depend on the
+log of the penalty factor.
+
+```{r plot-ridge}
+```
+
+### Conclusions (Part 4)
+
+By inspecting the graph, it is clear that Ridge spreads out the applied
+penalty on all features, while LASSO picks them off one by one.
+From this, one can conclude that LASSO is more efficient when one wants to
+create a smaller subset of features, while Ridge is more effective when
+the one wants to spread out the penalty effect across multiple features.
+
+## Modelling LASSO with Cross-Validation (Part 5)
+
+```{r cv-function}
+```
+
+A LASSO model is trained using a custom training function. It returns a
+cv.glmnet model and takes the training data and
+alpha (0 for Ridge, 1 for LASSO) as arguments.
+
+```{r training-cv, echo=TRUE}
+```
+
+### Plot (Part 5)
+
+The following plot illustrates the dependence of the CV score on log of
+the penalty factor.
+
+```{r plot-cv}
+```
+
+As can be seen from the plot, the MSE is steady for low penalty factors, but
+starts to grow rapidly when the log of the penalty factor is between -2 and -1.
+Around when the log of the penalty factor is around zero, the increase tapers
+off and keeps on increasing but at a slower rate.
+
+### Optimal Penalty Factor (Part 5)
+
+As can be seen from the the plot, the optimal penalty factor is
+represented by the leftmost dotted vertical line (where log of the penalty
+factor is between -3 and -2, closer to -3).
+
+The following code snippet reports the number of chosen variables:
+
+```{r variables-chosen-cv, echo=TRUE}
+```
+
+As can be seen from the printout, the number of chosen variables for this
+model is 8.
+
+#### Does the information displayed in the plot suggests that the optimal penalty factor results in a statistically significantly better prediction than the log of the penalty factor = −4? (Part 5)
+
+No. The MSE if actually a bit lower when the penalty factor is zero,
+compared to the optimal penalty factor (the leftmost dotted vertical line in the
+plot). This makes sense, because a very low penalty factor equates for a more
+complex model that is well fit to the training data.
+The MSE is still relatively low for the optimal penalty factor, even though it
+has reduced the number of  features from 100 to 9. It should, in theory,
+work good (or at least better compared to a penalty factor close to 0) on
+unseen data.
+
+### Original Test Values vs Predicted Test Values (Part 5)
+
+The following scatter plot illustrates the original values from the test data
+compared with the predicted test values from the LASSO model with a penalty
+factor of 0.05744535.
+
+```{r scatter}
+```
+
+As can be seen from the plot, the model predictions are generally in the 
+right neighborhood. However, the squared error is still relatively high for
+most values. From this, one can conclude that the model is not great, but it is
+a drastic improvement from the linear regression model with a MSE of around
+722.

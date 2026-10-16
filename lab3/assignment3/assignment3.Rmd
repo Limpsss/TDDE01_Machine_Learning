@@ -1,0 +1,61 @@
+---
+title: "Assignment 2"
+author: "Linus Göransson"
+date: "2025-12-11"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+source("R/script.R")
+```
+
+
+# Assignment 3
+
+## Part 1
+
+Since the optimal hyperparameter C has already been determined, the final model should be trained on the largest amount data to achieve the best possible performance. As $\bf{filter3}$ is trained on the entire spam dataset, it is the model that uses the most amount of data for training. Therefore, $\bf{filter3}$ is the model we should return to the user.
+
+
+## Part 2
+
+The generalisation error is the expected error rate on new, unseen data. Here, $\bf{err2}$ from $\bf{filter2}$ is the most reliable estimate as it is trained on the most amount of data, without including the test set in training. The error is measured on the test set which has remained untouched during both the C tuning and the final training run. This error is then an unbiased prediction of how the final model will perform in the real world. Because $\bf{filter3}$ is trained on the entire dataset, its error ($\bf{err3}$) is not the best estimate of the generalisation error since the test set is included in training which produces an optimistically biased error because the model is already familiar with the data it is being tested on. Therefore, $\bf{err2}$ is the best estimate returned to the user.
+
+
+## Part 3
+
+We implemented the linear combination between the support vectors and the new data points for $\bf{filter3}$ using the template provided in the "Lab3Block1_2021_SVMst.R" file. The formula used to calculate the prediction of a new point is shown below,
+
+$$
+\hat{y} = \sum_{i=1}^{n} \alpha_i K(x_i, x_*) + b
+$$
+
+where n is the number of support vectors, $\alpha_i$ is the i:th support vector coefficient, K() is a kernel function, $x_i$ is the i:th support vector, $x_*$ is the point we want to predict, and b is a bias term. To get the actual class we would take the sign of this value and whether or not its positive or negative, we would predict spam or not spam.
+
+After the implementation, these are the predicted values from the first 10 points of the dataset:
+
+```{r, echo=FALSE}
+predictions <- data.frame(
+  x = 1:length(k),
+  value = k
+)
+knitr::kable(predictions, caption = "Predicted values for the first 10 data points")
+```
+
+These were then compared to the predicted values of the same points using R's built-in function predict(), which returned the same result.
+
+
+# Theory part
+
+## Question 2
+
+The purpose of the hyperparameter C is to serve as the regularisation hyperparameter within the SVM optimisation problem. The book connects C to the parameter $\lambda$ used in the constraints of the dual optimisation probelem. The dual formulation minimises a cost function subject to:
+$$
+\lvert \alpha_i \rvert \leq \frac{1}{2n\lambda}
+$$
+where C = $\frac{1}{2n\lambda}$, which makes C control the weights of the coefficients ($\alpha_i$) in the optimisation. [p. 209-211]
+
+
+
+
+

@@ -1,0 +1,91 @@
+---
+title: "Lab 1 Assignment 3 Report"
+output:
+  html_document: default
+  pdf_document: default
+date: "2025-11-18"
+---
+
+```{r Setup, echo=FALSE, cache=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::read_chunk("R/script.R")
+```
+
+```{r Functions}
+```
+```{r Read-data}
+```
+
+# Assignment 3
+
+## Part 1 - Plot of real data
+The following plot is showing plasma glucose concentration on age where observations are colored by diabetes levels.
+```{r Part1, fig.width=12}
+```
+
+### Do you think that diabetes is easy to classify by a standard logistic regression model that uses these two variables as features?
+
+There is a lot of overlap in the points on the plot which makes a standard logistic regression hard. There are cases of diabetes spread very evenly across all data points and there is no clear linear relationship between them.
+
+## Part 2 - Logistic regression prediction
+In part 2 of assignment 3 we train a logistic regression model. The following plot has the same data points as the previous but are colored according to the predicted diabetes levels from the model:
+```{r Part2, fig.width=12}
+```
+
+### Report the probabilistic equation of the estimated model (i.e., how the target depends on the features and the estimated model parameters probabilistically).
+
+The probabilistic equation for the estimation of diabetes in the model can be calculated as:
+$$
+P(y=1 \mid x) 
+= \frac{1}{1 + e^{-(\beta_0 + \beta_1 x_1 + \beta_2 x_2)}}
+$$
+where β0 = (Intercept), β1 = first parameter, β2 = second parameter, with the following values:
+
+
+```{r}
+coef(model1)
+```
+
+With the prediction threshold r=0.5 all predictions above 0.5 are classified as "diabetes" while the prediction below it are classified as "not diabetes".
+
+### Misclassification of the model
+The training misclassification rate is calculated with given code from lecture slides 1.c.
+```{r misclassification}
+```
+
+### Comments on the quality of the model
+From the predictions it looks like once you go over 120-150 plasma glucose concentration (depending on age) you are predicted to have diabetes. Diabetes is a life-altering disease which you do not want to predict wrong. The misclassification is calculated at about 26.5%. An incorrect prediction 1 in 4 times is not very good in this situation.
+
+## Part 3 - Decision boundary
+The equation for the decision boundary can be derived by solving the probabilistic equation of the estimated model in regards to x2: 
+$$
+x_2 = \frac{\log\!\left(\frac{r}{1 - r}\right) - \beta_0 - \beta_1 x_1}{\beta_2}
+$$
+Adding the decision boundary to the plot gives a perfectly split between the two classifications.
+```{r Part3, fig.width=12}
+```
+
+## Part 4 - Adjustment of prediction threshold
+```{r Part4, fig.width=12}
+```
+
+By adjusting the prediction threshold we change how confident the model needs to be to predict a point as "diabetes".
+
+With r=0.2 the model will predict all points that have above 20% risk of diabetes as "diabetes".
+With r=0.8 the model will predict all points that have above 80% risk of diabetes as "diabetes".
+
+
+## Part 5 - Basis function expansion
+In the scatterplot for the prediction from the model with expanded features the decision boundary has turned from a line to a curve. The new model allows slightly higher amounts of plasma glucose concentration for younger and older people before predicting diabetes. People in the age 40-50 are predicted with diabetes at slightly lower amounts of plasma glucose concentration.
+```{r Part5, fig.width=12}
+```
+
+### Comparison of missprediction between original model and model with expanded features
+```{r misclassification2}
+```
+
+
+
+
+
+

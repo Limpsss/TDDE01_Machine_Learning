@@ -1,0 +1,66 @@
+---
+title: "Report Lab 1 - Group A15"
+output:
+  pdf_document:
+    latex_engine: xelatex
+---
+
+# Statement of Contributions
+
+| LiU ID   | Contributions                                                      |
+|----------|--------------------------------------------------------------------|
+| albal273 | Code and report for assignment 3. Report for assignment 4, part 1. |
+| lingo978 | Code and report for assignment 2. Report for assignment 4, part 3. |
+| vikno856 | Code and report for assignment 1. Report for assignment 4, part 2. |
+
+```{r child="assignment1/assignment1.Rmd"} 
+```
+
+```{r child="assignment2/assignment2.Rmd"}
+```
+
+```{r child="assignment3/assignment3.Rmd"}
+```
+
+# Assignment 4
+
+## Why can it be important to consider various probability thresholds in the classification problems, according to the book?
+
+While the prediction threshold which yields the lowest misclassification rate gives the most accurate predictions by percentage this is not always the most important aspect of a classifier. In real world situations it can be more important to correctly predict one classification over another. For example, you would much rather predict false positives over false negatives when predicting cancer in patients. Classifications might also appear at very different frequencies. If a specific classification is rare the misclassification rate might be the lowest when no predictions result in the rare class.
+
+(From book page 50)
+
+## What ways of collecting correct values of the target variable for the supervised learning problems are mentioned in the book?
+
+The book mentions that there are different ways of collecting the target variable. One way is manually labeling. The example given is diagnosing heart abnormalities [p.2-4], where a classification of normal/abnormal is done for a given ECG signal. Here, the target value needs to be manually given by an expert that can inspect a given signal and decide on if it is normal or abnormal. Furthermore, the book brings up an example of formation energies within crystals [p. 5-6]. Here, the target variable is not given by supervision through a human. Rather, the target variable is computed. Also mentioned is the fact that the target variables can appear naturally when collecting the training data [p. 6]. For example, this is the case when trying to predict the outcome of a football match as "win", "tie" or "loss". The target variable is in this case given "for free" by inspecting historical data.
+
+## How can one express the cost function of the linear regression in the matrix form, according to the book?
+
+The cost function used in regression is typically the least squared error cost. $$\frac{1}{n}\sum_{i=1}^{n}(\hat{y}(x_i;\theta) - y_i))^2$$
+
+According to the book, this cost function can be expressed concisely in matrix form,
+$$\frac{1}{n}\sum_{i=1}^{n}(\hat{y}(x_i;\theta) - y_i))^2 = \frac{1}{n}\|\hat{y}-y\|^2_2 = \frac{1}{n}\|X\theta-y\|^2_2 = \frac{1}{n}\|\epsilon\|^2_2$$
+where $\|\cdot\|$ denotes the usual Euclidean vector norm and $\|\cdot\|^2_2$ its square. [p.41]
+
+# Appendix
+
+## Assignment 1
+```{r, results='asis', echo=FALSE}
+cat("```r\n")
+cat(readLines("assignment1/R/script.R"), sep = "\n")
+cat("\n```")
+```
+
+## Assignment 2
+```{r, results='asis', echo=FALSE}
+cat("```r\n")
+cat(readLines("assignment2/R/script.R"), sep = "\n")
+cat("\n```")
+```
+
+## Assignment 3
+```{r, results='asis', echo=FALSE}
+cat("```r\n")
+cat(readLines("assignment3/R/script.R"), sep = "\n")
+cat("\n```")
+```
