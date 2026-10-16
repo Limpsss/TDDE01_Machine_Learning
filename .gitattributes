@@ -1,0 +1,2 @@
+# Rendered knitr reports: exclude from GitHub language stats
+*.html linguist-generated
